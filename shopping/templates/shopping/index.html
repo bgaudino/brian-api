@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shopping List</title>
+    <link rel="icon" href="static/images/favicon.ico" />
+    <link
+      rel="apple-touch-icon image_src"
+      href="static/images/apple-touch-icon.png"
+    />
 
     <style>
       body {
@@ -45,6 +50,7 @@
         justify-content: center;
       }
       button {
+        cursor: pointer;
         background-color: #00ab66;
         color: white;
         border: none;
@@ -79,7 +85,6 @@
   <body>
     <main>
       <h1>Shopping List</h1>
-
       <h2>Add Item</h2>
       <form method="POST" action="{% url 'item_view' %}">
         {% csrf_token %}
@@ -94,7 +99,7 @@
       <p>All done!</p>
       {% endif %} {% for item in items %}
       <div class="row">
-        <div>{{ item }}</div>
+        <div class="item">{{ item }}</div>
         <div>
           <button class="buyButton" value="{{ item.id }}">
             <i class="fas fa-check"></i>
@@ -111,7 +116,7 @@
       <h3>{{ item.purchased_at.date }}</h3>
       {% endifchanged %}
       <div class="row">
-        <div>{{ item }}</div>
+        <div class="item">{{ item }}</div>
         <div>
           <button class="restoreButton" value="{{ item.id }}">
             <i class="fas fa-undo"></i>
