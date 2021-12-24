@@ -24,7 +24,7 @@ section {
 .row {
   display: grid;
   align-items: center;
-  grid-template-columns: 4fr 1fr 1fr;
+  grid-template-columns: 5fr 1fr;
   margin: 4px 0;
 }
 main {
@@ -42,7 +42,6 @@ input {
 }
 div {
   display: flex;
-  justify-content: center;
 }
 button {
   cursor: pointer;
@@ -73,4 +72,17 @@ form {
 }
 #purchased {
   background-color: #24a0ed;
+}
+.item {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 2rem;
+}
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
