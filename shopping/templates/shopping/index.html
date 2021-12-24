@@ -40,7 +40,7 @@
         />
         <datalist id="items">
           {% for item in datalist %}
-            <option value="{{ item.name }}">
+            <option value="{{ item.name | capfirst }}">
           {% endfor %}
         </datalist>
         <button type="submit">
