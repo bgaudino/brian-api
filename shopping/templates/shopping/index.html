@@ -30,7 +30,19 @@
       <progress style="display: none; width: 100%"></progress>
       <form method="POST" action="{% url 'item_view' %}">
         {% csrf_token %}
-        <input name="item" required autofocus placeholder="New Item" />
+        <input
+          list="items"
+          name="item"
+          required
+          autofocus
+          autocomplete="off"
+          placeholder="New Item"
+        />
+        <datalist id="items">
+          {% for item in datalist %}
+            <option value="{{ item.name }}">
+          {% endfor %}
+        </datalist>
         <button type="submit">
           <i class="fas fa-plus"></i>
         </button>

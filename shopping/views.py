@@ -19,10 +19,12 @@ class ItemView(View):
         if not purchased.exists():
             purchased = Item.objects.filter(is_purchased=True).order_by(
                 '-purchased_at', 'created_at')[:20]
+        datalist = Item.objects.all().values('name').distinct().order_by('name')
         response = {
             "items": items,
             "purchased": purchased,
-            "form": ShoppingForm()
+            "form": ShoppingForm(),
+            "datalist": datalist,
         }
         return render(request, "shopping/index.html", response)
 
