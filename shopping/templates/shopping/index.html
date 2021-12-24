@@ -28,7 +28,6 @@
     <main>
       <h1>Shopping List</h1>
       <progress style="display: none; width: 100%"></progress>
-      <h2>Add Item</h2>
       <form method="POST" action="{% url 'item_view' %}">
         {% csrf_token %}
         <input name="item" required autofocus placeholder="New Item" />
