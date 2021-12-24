@@ -1,6 +1,7 @@
 const form = document.querySelector("form");
 form.onsubmit = (e) => {
   e.preventDefault();
+  setTimeout(() => document.querySelector('progress').style.display = 'block', 1000);
   const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
   const item = document.getElementsByName("item")[0].value;
   fetch("/", {
@@ -46,6 +47,7 @@ restoreButton.forEach(
 
 function makeRequest(element, url, method) {
   const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+  setTimeout(() => document.querySelector('progress').style.display = 'block', 1000);
   fetch(url, {
     method: method,
     headers: {
