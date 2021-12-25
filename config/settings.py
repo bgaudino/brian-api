@@ -16,7 +16,8 @@ from pathlib import Path
 import environ
 
 env = environ.Env(
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    ENVIRONMENT=(str, 'production')
 )
 
 environ.Env.read_env()
@@ -34,7 +35,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', 'bgaudino.pythonanywhere.com']
+ENVIRONMENT = env('ENVIRONMENT')
+
+ALLOWED_HOSTS = ['bgaudino.pythonanywhere.com'] if ENVIRONMENT == 'production' else ['*']
 
 
 # Application definition
@@ -54,7 +57,6 @@ INSTALLED_APPS = [
     'exercise',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
