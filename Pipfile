@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 django = "*"
 python-environ = "*"
+django-cors-headers = "*"
+djangorestframework = "*"
+django-nested-admin = "*"
 
 [dev-packages]
 autopep8 = "*"
