@@ -1,9 +1,10 @@
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
+from django.utils import timezone
 
 from .forms import ShoppingForm
 from .models import Item
@@ -13,7 +14,7 @@ class ItemView(View):
 
     def get(self, request):
         items = Item.objects.filter(is_purchased=False).order_by("created_at")
-        two_weeks_ago = datetime.now() - timedelta(days=14)
+        two_weeks_ago = timezone.now() - timedelta(days=14)
         purchased = Item.objects.filter(is_purchased=True, purchased_at__gt=two_weeks_ago).order_by(
             '-purchased_at', 'created_at')
         if not purchased.exists():
@@ -34,7 +35,7 @@ class ItemView(View):
         if form.is_valid():
             item = Item(
                 name=form.cleaned_data["item"],
-                added_by=request.user if request.user.is_authenticated else None
+                added_by=request.user if request.user.is_authenticated else None,
             )
             item.save()
         else:
@@ -48,7 +49,7 @@ class ItemPurchaseView(View):
     def put(self, request, item_id):
         item = Item.objects.get(pk=item_id)
         item.is_purchased = True
-        item.purchased_at = datetime.now()
+        item.purchased_at = timezone.now()
         item.purchased_by = request.user if request.user.is_authenticated else None
         item.save()
         return JsonResponse({"success": True})
