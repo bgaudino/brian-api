@@ -5,7 +5,7 @@ from .models import Workout, Exercise, Set
 from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer
 
 
-class WorkoutView(APIView):
+class WorkoutListView(APIView):
     def get(self, request):
         workouts = Workout.objects.all()
         data = WorkoutSerializer(workouts, many=True).data
@@ -15,6 +15,18 @@ class WorkoutView(APIView):
         user = User.objects.all().first()
         workout = Workout.objects.create(user=user)
         return Response(WorkoutSerializer(workout).data)
+
+
+class WorkoutView(APIView):
+    def get(self, request, id):
+        workout = Workout.objects.get(id=id)
+        data = WorkoutSerializer(workout).data
+        return Response(data)
+
+    def delete(self, request, id):
+        workout = Workout.objects.get(id=id)
+        workout.delete()
+        return Response(status=204)
 
 
 class ExerciseCreateUpdateView(APIView):
