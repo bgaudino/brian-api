@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from user.models import User
@@ -19,14 +20,17 @@ class WorkoutListView(APIView):
 
 class WorkoutView(APIView):
     def get(self, request, id):
-        workout = Workout.objects.get(id=id)
+        try:
+            workout = Workout.objects.get(id=id)
+        except Workout.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         data = WorkoutSerializer(workout).data
         return Response(data)
 
     def delete(self, request, id):
         workout = Workout.objects.get(id=id)
         workout.delete()
-        return Response(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ExerciseCreateUpdateView(APIView):
