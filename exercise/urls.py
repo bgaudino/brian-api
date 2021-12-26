@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path("sessions/", views.SessionView.as_view()),
+    path("sessions/", views.WorkoutView.as_view()),
     path("delete/<int:id>/", views.ExerciseDeleteView.as_view()),
     path("create_or_update/", views.ExerciseCreateUpdateView.as_view()),
     path("set/delete/<int:id>/", views.SetDeleteView.as_view()),

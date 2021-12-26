@@ -1,27 +1,27 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from user.models import User
-from .models import Session, Exercise, Set
-from .serializers import SessionSerializer, ExerciseSerializer, SetSerializer
+from .models import Workout, Exercise, Set
+from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer
 
 
-class SessionView(APIView):
+class WorkoutView(APIView):
     def get(self, request):
-        sessions = Session.objects.all()
-        data = SessionSerializer(sessions, many=True).data
+        workouts = Workout.objects.all()
+        data = WorkoutSerializer(workouts, many=True).data
         return Response(data)
 
     def post(self, request):
         user = User.objects.all().first()
-        session = Session.objects.create(user=user)
-        return Response(SessionSerializer(session).data)
+        workout = Workout.objects.create(user=user)
+        return Response(WorkoutSerializer(workout).data)
 
 
 class ExerciseCreateUpdateView(APIView):
     def post(self, request):
-        session = Session.objects.get(id=request.data["session_id"])
+        workout = Workout.objects.get(id=request.data["workout_id"])
         exercise = Exercise.objects.create(
-            session=session,
+            workout=workout,
             exercise_name=request.data["exercise_name"]
         )
         data = ExerciseSerializer(exercise).data
