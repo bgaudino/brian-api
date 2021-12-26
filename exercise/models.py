@@ -2,7 +2,7 @@ from django.db import models
 from user.models import User
 
 
-class Session(models.Model):
+class Workout(models.Model):
     user = models.ForeignKey(
         User,
         related_name="users",
@@ -12,12 +12,12 @@ class Session(models.Model):
     finish_date = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.start_date.strftime('%m/%d/%y')}: {self.user.email}"
+        return f"{self.start_date.strftime('%m%d%y')}: {self.user.email}"
 
 
 class Exercise(models.Model):
-    session = models.ForeignKey(
-        Session,
+    workout = models.ForeignKey(
+        Workout,
         related_name="exercises",
         on_delete=models.CASCADE,
     )

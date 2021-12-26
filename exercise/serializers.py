@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Session, Exercise, Set
+from .models import Workout, Exercise, Set
 
 
 class SetSerializer(serializers.ModelSerializer):
@@ -17,9 +17,9 @@ class ExerciseSerializer(serializers.ModelSerializer):
         fields = ('id', 'exercise_name', 'sets')
 
 
-class SessionSerializer(serializers.ModelSerializer):
+class WorkoutSerializer(serializers.ModelSerializer):
     exercises = ExerciseSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Session
+        model = Workout
         fields = ('id', 'start_date', 'exercises', 'exercises')
