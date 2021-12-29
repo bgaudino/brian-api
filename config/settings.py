@@ -145,3 +145,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'user.User'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+STRAVA_CLIENT_ID = env('STRAVA_CLIENT_ID')
+STRAVA_CLIENT_SECRET = env('STRAVA_CLIENT_SECRET')

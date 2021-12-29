@@ -9,4 +9,6 @@ urlpatterns = [
     path("create_or_update/", views.ExerciseCreateUpdateView.as_view()),
     path("set/delete/<int:id>/", views.SetDeleteView.as_view()),
     path("set/create_or_update/", views.SetCreateUpdateView.as_view()),
+    path("strava-auth/", views.StravaAuthView.as_view()),
+    path("cardio/", views.CardioListView.as_view()),
 ]

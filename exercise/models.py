@@ -1,4 +1,9 @@
+from datetime import datetime
+
+import requests
+from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from django.db import models
+from django.utils.timezone import make_aware
 from user.models import User
 
 
@@ -36,3 +41,83 @@ class Set(models.Model):
     )
     weight = models.IntegerField()
     reps = models.IntegerField()
+
+
+class StravaAccount(models.Model):
+    strava_id = models.IntegerField()
+    user = models.ForeignKey(
+        User, related_name="strava_accounts",
+        on_delete=models.CASCADE
+    )
+    access_token = models.TextField()
+    refresh_token = models.TextField()
+    token_type = models.CharField(max_length=100)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    username = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    premium = models.BooleanField(default=False)
+    avatar = models.URLField()
+    avatar_medium = models.URLField()
+
+    def __str__(self):
+        return f"{self.username}'s Strava Account"
+
+    def refresh_tokens(self):
+        body = {
+            "client_id": STRAVA_CLIENT_ID,
+            "client_secret": STRAVA_CLIENT_SECRET,
+            "refresh_token": self.refresh_token,
+            "grant_type": "refresh_token",
+        }
+        res = requests.post("https://www.strava.com/oauth/token", json=body)
+        data = res.json()
+        self.token_type = data["token_type"]
+        self.expires_at = make_aware(
+            datetime.utcfromtimestamp(data["expires_at"]))
+        self.access_token = data["access_token"]
+        self.save()
+
+
+class CardioSession(models.Model):
+    user = models.ForeignKey(
+        User, related_name="cardio_seesions",
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=100)
+    distance = models.DecimalField(max_digits=10, decimal_places=2)
+    moving_time = models.IntegerField()
+    elapsed_time = models.IntegerField()
+    total_elevation_gain = models.DecimalField(max_digits=10, decimal_places=2)
+    type = models.CharField(max_length=100)
+    workout_type = models.IntegerField(null=True)
+    strava_id = models.IntegerField()
+    external_id = models.TextField()
+    upload_id = models.IntegerField()
+    start_date = models.DateTimeField()
+    start_date_local = models.DateTimeField()
+    timezone = models.CharField(max_length=100)
+    utc_offset = models.DecimalField(max_digits=10, decimal_places=2)
+    average_speed = models.DecimalField(max_digits=10, decimal_places=2)
+    max_speed = models.DecimalField(max_digits=10, decimal_places=2)
+    has_heartrate = models.BooleanField(default=False)
+    average_heartrate = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    max_heartrate = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    elev_high = models.DecimalField(max_digits=10, decimal_places=2)
+    elev_low = models.DecimalField(max_digits=10, decimal_places=2)
+    suffer_score = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True)
+
+
+class Map(models.Model):
+    cardio_session = models.ForeignKey(
+        CardioSession, related_name="maps",
+        on_delete=models.CASCADE
+    )
+    map_id = models.TextField()
+    summary_polyline = models.TextField()
+    resource_state = models.IntegerField()

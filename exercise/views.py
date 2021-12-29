@@ -1,9 +1,15 @@
+import requests
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.utils.timezone import make_aware
+
+from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from user.models import User
-from .models import Workout, Exercise, Set
-from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer
+from .models import Workout, Exercise, Set, StravaAccount, CardioSession, Map
+from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer
 
 
 class WorkoutListView(APIView):
@@ -87,3 +93,78 @@ class SetDeleteView(APIView):
         set = Set.objects.get(id=id)
         set.delete()
         return Response(status=204)
+
+
+class StravaAuthView(APIView):
+    def post(self, request):
+        code = request.data["code"]
+        body = {
+            "client_id": STRAVA_CLIENT_ID,
+            "client_secret": STRAVA_CLIENT_SECRET,
+            "code": code,
+            "grant_type": "authorization_code",
+        }
+        res = requests.post("https://www.strava.com/oauth/token", json=body)
+        data = res.json()
+        user = User.objects.all().first()
+        try:
+            account = StravaAccount.objects.get(
+                strava_id=data["athlete"]["id"])
+            print("Athlete already exists. Updating")
+        except:
+            account = StravaAccount(
+                user=user,
+                strava_id=data["athlete"]["id"]
+            )
+            print("Creating new athlete")
+        account.token_type = data["token_type"]
+        account.expires_at = make_aware(
+            datetime.utcfromtimestamp(data["expires_at"]))
+        account.access_token = data["access_token"]
+        account.refresh_token = data["refresh_token"]
+        account.username = data["athlete"]["username"]
+        account.first_name = data["athlete"]["firstname"]
+        account.last_name = data["athlete"]["lastname"]
+        account.premium = data["athlete"]["premium"]
+        account.created_at = data["athlete"]["created_at"]
+        account.updated_at = data["athlete"]["updated_at"]
+        account.avatar_medium = data["athlete"]["profile_medium"]
+        account.avatar = data["athlete"]["profile"]
+        account.save()
+        print("Success")
+
+        activityURL = "https://www.strava.com/api/v3/athlete/activities"
+        headers = {
+            "Authorization": f"Bearer {account.access_token}"
+        }
+        res = requests.get(activityURL, headers=headers)
+        activities = res.json()
+
+        for activity in activities:
+            try:
+                cardio_session = CardioSession.objects.get(
+                    strava_id=activity["id"])
+            except:
+                cardio_session = CardioSession(
+                    user=user,
+                    strava_id=activity["id"]
+                )
+            for key, value in activity.items():
+                setattr(cardio_session, key, value)
+            cardio_session.save()
+            map = Map(
+                cardio_session=cardio_session,
+                map_id=activity["map"]["id"],
+                summary_polyline=activity["map"]["summary_polyline"],
+                resource_state=activity["map"]["resource_state"],
+            )
+            map.save()
+
+        return Response(data)
+
+
+class CardioListView(APIView):
+    def get(self, request):
+        cardio_sessions = CardioSession.objects.all()
+        data = CardioSessionSerializer(cardio_sessions, many=True).data
+        return Response(data)

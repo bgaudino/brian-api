@@ -9,6 +9,7 @@ python-environ = "*"
 django-cors-headers = "*"
 djangorestframework = "*"
 django-nested-admin = "*"
+requests = "*"
 
 [dev-packages]
 autopep8 = "*"
