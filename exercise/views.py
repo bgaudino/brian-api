@@ -9,12 +9,12 @@ from django.utils.timezone import make_aware
 from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from user.models import User
 from .models import Workout, Exercise, Set, StravaAccount, CardioSession, Map
-from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer
+from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer, StravaAccountSerializer
 
 
 class WorkoutListView(APIView):
     def get(self, request):
-        workouts = Workout.objects.all()
+        workouts = Workout.objects.all().order_by('-start_date')
         data = WorkoutSerializer(workouts, many=True).data
         return Response(data)
 
@@ -106,6 +106,7 @@ class StravaAuthView(APIView):
         }
         res = requests.post("https://www.strava.com/oauth/token", json=body)
         data = res.json()
+
         user = User.objects.all().first()
         try:
             account = StravaAccount.objects.get(
@@ -133,38 +134,17 @@ class StravaAuthView(APIView):
         account.save()
         print("Success")
 
-        activityURL = "https://www.strava.com/api/v3/athlete/activities"
-        headers = {
-            "Authorization": f"Bearer {account.access_token}"
-        }
-        res = requests.get(activityURL, headers=headers)
-        activities = res.json()
-
-        for activity in activities:
-            try:
-                cardio_session = CardioSession.objects.get(
-                    strava_id=activity["id"])
-            except:
-                cardio_session = CardioSession(
-                    user=user,
-                    strava_id=activity["id"]
-                )
-            for key, value in activity.items():
-                setattr(cardio_session, key, value)
-            cardio_session.save()
-            map = Map(
-                cardio_session=cardio_session,
-                map_id=activity["map"]["id"],
-                summary_polyline=activity["map"]["summary_polyline"],
-                resource_state=activity["map"]["resource_state"],
-            )
-            map.save()
+        account.get_activities()
 
         return Response(data)
 
 
 class CardioListView(APIView):
     def get(self, request):
+        strava_accounts = StravaAccount.objects.all()
         cardio_sessions = CardioSession.objects.all()
-        data = CardioSessionSerializer(cardio_sessions, many=True).data
+        data = {
+            "strava_accounts": StravaAccountSerializer(strava_accounts, many=True).data,
+            "cardio_sessions": CardioSessionSerializer(cardio_sessions, many=True).data,
+        }
         return Response(data)

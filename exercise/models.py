@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
@@ -64,6 +64,39 @@ class StravaAccount(models.Model):
 
     def __str__(self):
         return f"{self.username}'s Strava Account"
+
+    def get_activities(self):
+        now = make_aware(datetime.now()) + timedelta(minutes=30)
+        if self.expires_at < now:
+            print("Refreshing tokens")
+            self.refresh_tokens()
+        
+        activityURL = "https://www.strava.com/api/v3/athlete/activities"
+        headers = {
+            "Authorization": f"Bearer {self.access_token}"
+        }
+        res = requests.get(activityURL, headers=headers)
+        activities = res.json()
+
+        for activity in activities:
+            try:
+                cardio_session = CardioSession.objects.get(
+                    strava_id=activity["id"])
+            except:
+                cardio_session = CardioSession(
+                    user=self.user,
+                    strava_id=activity["id"]
+                )
+            for key, value in activity.items():
+                setattr(cardio_session, key, value)
+            cardio_session.save()
+            map = Map(
+                cardio_session=cardio_session,
+                map_id=activity["map"]["id"],
+                summary_polyline=activity["map"]["summary_polyline"],
+                resource_state=activity["map"]["resource_state"],
+            )
+            map.save()
 
     def refresh_tokens(self):
         body = {

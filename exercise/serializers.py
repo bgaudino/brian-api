@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Workout, Exercise, Set, CardioSession
+from .models import Workout, Exercise, Set, CardioSession, StravaAccount
 
 
 class SetSerializer(serializers.ModelSerializer):
@@ -30,6 +30,8 @@ class CardioSessionSerializer(serializers.ModelSerializer):
         model = CardioSession
         fields = (
             'id',
+            'start_date',
+            'start_date_local',
             'name',
             'distance', 
             'moving_time', 
@@ -38,4 +40,15 @@ class CardioSessionSerializer(serializers.ModelSerializer):
             'has_heartrate', 
             'average_heartrate',
             'max_heartrate',
+        )
+
+class StravaAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StravaAccount
+        fields = (
+            'id',
+            'avatar',
+            'first_name',
+            'last_name',
+            'username',
         )
