@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.timezone import make_aware
 
-from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
+from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_WEBHOOK_VERIFY_TOKEN
 from user.models import User
 from .models import Workout, Exercise, Set, StravaAccount, CardioSession, Map
 from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer, StravaAccountSerializer
@@ -154,7 +154,7 @@ class StravaWebhookView(APIView):
     def get(self, request):
         params = request.query_params
         print(params)
-        if params.get("hub.verify_token") != "strava_webhook_verify_token":
+        if params.get("hub.verify_token") != STRAVA_WEBHOOK_VERIFY_TOKEN:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return Response({
             "hub.challenge": params.get("hub.challenge")
