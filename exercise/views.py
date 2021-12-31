@@ -142,9 +142,43 @@ class StravaAuthView(APIView):
 class CardioListView(APIView):
     def get(self, request):
         strava_accounts = StravaAccount.objects.all()
-        cardio_sessions = CardioSession.objects.all()
+        cardio_sessions = CardioSession.objects.all().order_by('-start_date')
         data = {
             "strava_accounts": StravaAccountSerializer(strava_accounts, many=True).data,
             "cardio_sessions": CardioSessionSerializer(cardio_sessions, many=True).data,
         }
         return Response(data)
+
+
+class StravaWebhookView(APIView):
+    def get(self, request):
+        params = request.query_params
+        print(params)
+        if params.get("hub.verify_token") != "strava_webhook_verify_token":
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return Response({
+            "hub.challenge": params.get("hub.challenge")
+        })
+
+    def post(self, request):
+        owner_id = request.data["owner_id"]
+        try:
+            account = StravaAccount.objects.get(strava_id=owner_id)
+        except StravaAccount.DoesNotExist:
+            print("No account found")
+            return Response(status=status.HTTP_202_ACCEPTED)
+        
+        object_type = request.data.get("object_type")
+        aspect_type = request.data.get("aspect_type")
+        if object_type == "activity":
+            strava_id = request.data.get("object_id")
+            if aspect_type == "create" or aspect_type == "update":
+                account.get_single_activity(strava_id)
+            if aspect_type == "delete":
+                try:
+                    CardioSession.objects.get(strava_id=strava_id).delete()
+                except CardioSession.DoesNotExist:
+                    print("Activity does not exist")
+                    return Response(status=status.HTTP_202_ACCEPTED)
+
+        return Response(status=200)

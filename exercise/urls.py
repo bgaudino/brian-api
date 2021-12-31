@@ -11,4 +11,5 @@ urlpatterns = [
     path("set/create_or_update/", views.SetCreateUpdateView.as_view()),
     path("strava-auth/", views.StravaAuthView.as_view()),
     path("cardio/", views.CardioListView.as_view()),
+    path("strava/webhook/", views.StravaWebhookView.as_view()),
 ]

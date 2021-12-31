@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import requests
 from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
 from django.db import models
 from django.utils.timezone import make_aware
 from user.models import User
+
+from exercise.decorators import check_tokens
 
 
 class Workout(models.Model):
@@ -65,38 +67,53 @@ class StravaAccount(models.Model):
     def __str__(self):
         return f"{self.username}'s Strava Account"
 
-    def get_activities(self):
-        now = make_aware(datetime.now()) + timedelta(minutes=30)
-        if self.expires_at < now:
-            print("Refreshing tokens")
-            self.refresh_tokens()
-        
-        activityURL = "https://www.strava.com/api/v3/athlete/activities"
-        headers = {
+    def get_headers(self):
+        return {
             "Authorization": f"Bearer {self.access_token}"
         }
-        res = requests.get(activityURL, headers=headers)
+
+    @check_tokens
+    def get_single_activity(self, activity_id):
+        activityURL = f"https://www.strava.com/api/v3/activities/{activity_id}"
+        res = requests.get(activityURL, headers=self.get_headers())
+        activity = res.json()
+        self.create_or_update_activity(activity)
+
+    @check_tokens
+    def get_activities(self):
+        activityURL = "https://www.strava.com/api/v3/athlete/activities"
+        res = requests.get(activityURL, headers=self.get_headers())
         activities = res.json()
 
         for activity in activities:
-            try:
-                cardio_session = CardioSession.objects.get(
-                    strava_id=activity["id"])
-            except:
-                cardio_session = CardioSession(
-                    user=self.user,
-                    strava_id=activity["id"]
-                )
-            for key, value in activity.items():
-                setattr(cardio_session, key, value)
-            cardio_session.save()
+            self.create_or_update_activity(activity)
+
+    @check_tokens
+    def create_or_update_activity(self, activity):
+        try:
+            cardio_session = CardioSession.objects.get(
+                strava_id=activity["id"])
+        except CardioSession.DoesNotExist:
+            cardio_session = CardioSession(
+                user=self.user,
+                strava_id=activity["id"]
+            )
+        except KeyError:
+            print(activity)
+            return
+        for key, value in activity.items():
+            setattr(cardio_session, key, value)
+        cardio_session.save()
+        if "map" in activity:
+            map_data = activity["map"]
             map = Map(
                 cardio_session=cardio_session,
-                map_id=activity["map"]["id"],
-                summary_polyline=activity["map"]["summary_polyline"],
-                resource_state=activity["map"]["resource_state"],
+                map_id=map_data.get("id"),
+                summary_polyline=map_data.get("summary_polyline", None),
+                resource_state=map_data.get("resource_state", None),
             )
             map.save()
+        print("Activity saved")
 
     def refresh_tokens(self):
         body = {
@@ -127,8 +144,8 @@ class CardioSession(models.Model):
     type = models.CharField(max_length=100)
     workout_type = models.IntegerField(null=True)
     strava_id = models.IntegerField()
-    external_id = models.TextField()
-    upload_id = models.IntegerField()
+    external_id = models.TextField(null=True, blank=True)
+    upload_id = models.IntegerField(null=True, blank=True)
     start_date = models.DateTimeField()
     start_date_local = models.DateTimeField()
     timezone = models.CharField(max_length=100)
@@ -140,8 +157,10 @@ class CardioSession(models.Model):
         max_digits=10, decimal_places=2, blank=True, null=True)
     max_heartrate = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True)
-    elev_high = models.DecimalField(max_digits=10, decimal_places=2)
-    elev_low = models.DecimalField(max_digits=10, decimal_places=2)
+    elev_high = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
+    elev_low = models.DecimalField(
+        max_digits=10, decimal_places=2, blank=True, null=True)
     suffer_score = models.DecimalField(
         max_digits=10, decimal_places=2, null=True)
 
@@ -152,5 +171,5 @@ class Map(models.Model):
         on_delete=models.CASCADE
     )
     map_id = models.TextField()
-    summary_polyline = models.TextField()
-    resource_state = models.IntegerField()
+    summary_polyline = models.TextField(null=True, blank=True)
+    resource_state = models.IntegerField(null=True, blank=True)
