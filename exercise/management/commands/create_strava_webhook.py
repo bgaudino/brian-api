@@ -14,7 +14,7 @@ class Command(BaseCommand):
             "client_id": STRAVA_CLIENT_ID,
             "client_secret": STRAVA_CLIENT_SECRET,
             "callback_url": f"{SITE_URL}/api/exercise/strava/webhook/",
-            "verify_token": "strava_webhook_verify_token",
+            "verify_token": STRAVA_WEBHOOK_VERIFY_TOKEN,
         }
         res = requests.post(url, json=body)
         print(res.json())
