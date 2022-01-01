@@ -10,6 +10,7 @@ django-cors-headers = "*"
 djangorestframework = "*"
 django-nested-admin = "*"
 requests = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 autopep8 = "*"

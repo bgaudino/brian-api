@@ -7,41 +7,41 @@ from rest_framework.response import Response
 from django.utils.timezone import make_aware
 
 from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_WEBHOOK_VERIFY_TOKEN
-from user.models import User
-from .models import Workout, Exercise, Set, StravaAccount, CardioSession, Map
+from .models import Workout, Exercise, Set, StravaAccount, CardioSession
 from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer, StravaAccountSerializer
 
 
 class WorkoutListView(APIView):
     def get(self, request):
-        workouts = Workout.objects.all().order_by('-start_date')
+        workouts = Workout.objects.filter(
+            user=request.user).order_by('-start_date')
         data = WorkoutSerializer(workouts, many=True).data
         return Response(data)
 
     def post(self, request):
-        user = User.objects.all().first()
-        workout = Workout.objects.create(user=user)
+        workout = Workout.objects.create(user=request.user)
         return Response(WorkoutSerializer(workout).data)
 
 
 class WorkoutView(APIView):
     def get(self, request, id):
         try:
-            workout = Workout.objects.get(id=id)
+            workout = Workout.objects.get(id=id, user=request.user)
         except Workout.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         data = WorkoutSerializer(workout).data
         return Response(data)
 
     def delete(self, request, id):
-        workout = Workout.objects.get(id=id)
+        workout = Workout.objects.get(id=id, user=request.user)
         workout.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ExerciseCreateUpdateView(APIView):
     def post(self, request):
-        workout = Workout.objects.get(id=request.data["workout_id"])
+        workout = Workout.objects.get(
+            id=request.data["workout_id"], user=request.user)
         exercise = Exercise.objects.create(
             workout=workout,
             exercise_name=request.data["exercise_name"]
@@ -50,7 +50,8 @@ class ExerciseCreateUpdateView(APIView):
         return Response(data)
 
     def put(self, request):
-        exercise = Exercise.objects.get(id=request.data["exercise_id"])
+        exercise = Exercise.objects.get(
+            id=request.data["exercise_id"], workout__user=request.user)
         for key, value in request.data.items():
             if key != "exercise_id":
                 setattr(exercise, key, value)
@@ -61,7 +62,7 @@ class ExerciseCreateUpdateView(APIView):
 
 class ExerciseDeleteView(APIView):
     def delete(self, request, id):
-        exercise = Exercise.objects.get(id=id)
+        exercise = Exercise.objects.get(id=id, workout__user=request.user)
         exercise.delete()
         return Response(status=204)
 
@@ -69,7 +70,8 @@ class ExerciseDeleteView(APIView):
 class SetCreateUpdateView(APIView):
     def post(self, request):
         exercise_id = request.data["exercise_id"]
-        exercise = Exercise.objects.get(id=exercise_id)
+        exercise = Exercise.objects.get(
+            id=exercise_id, workout__user=request.user)
         set = Set.objects.create(
             exercise=exercise,
             weight=request.data["weight"],
@@ -79,7 +81,7 @@ class SetCreateUpdateView(APIView):
 
     def put(self, request):
         set_id = request.data["id"]
-        set = Set.objects.get(id=set_id)
+        set = Set.objects.get(id=set_id, exercise__workout__user=request.user)
         for key, value in request.data.items():
             if key in ["reps", "weight"]:
                 setattr(set, key, value)
@@ -90,7 +92,7 @@ class SetCreateUpdateView(APIView):
 
 class SetDeleteView(APIView):
     def delete(self, request, id):
-        set = Set.objects.get(id=id)
+        set = Set.objects.get(id=id, exercise__workout__user=request.user)
         set.delete()
         return Response(status=204)
 
@@ -107,7 +109,7 @@ class StravaAuthView(APIView):
         res = requests.post("https://www.strava.com/oauth/token", json=body)
         data = res.json()
 
-        user = User.objects.all().first()
+        user = request.user
         try:
             account = StravaAccount.objects.get(
                 strava_id=data["athlete"]["id"])
@@ -141,8 +143,9 @@ class StravaAuthView(APIView):
 
 class CardioListView(APIView):
     def get(self, request):
-        strava_accounts = StravaAccount.objects.all()
-        cardio_sessions = CardioSession.objects.all().order_by('-start_date')
+        strava_accounts = StravaAccount.objects.filter(user=request.user)
+        cardio_sessions = CardioSession.objects.filter(
+            user=request.user).order_by('-start_date')
         data = {
             "strava_accounts": StravaAccountSerializer(strava_accounts, many=True).data,
             "cardio_sessions": CardioSessionSerializer(cardio_sessions, many=True).data,
@@ -167,7 +170,7 @@ class StravaWebhookView(APIView):
         except StravaAccount.DoesNotExist:
             print("No account found")
             return Response(status=status.HTTP_202_ACCEPTED)
-        
+
         object_type = request.data.get("object_type")
         aspect_type = request.data.get("aspect_type")
         if object_type == "activity":

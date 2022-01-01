@@ -37,7 +37,8 @@ DEBUG = env('DEBUG')
 
 ENVIRONMENT = env('ENVIRONMENT')
 
-ALLOWED_HOSTS = ['bgaudino.pythonanywhere.com'] if ENVIRONMENT == 'production' else ['*']
+ALLOWED_HOSTS = [
+    'bgaudino.pythonanywhere.com'] if ENVIRONMENT == 'production' else ['*']
 
 
 # Application definition
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'nested_admin',
     'user',
@@ -145,6 +147,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'user.User'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 STRAVA_CLIENT_ID = env('STRAVA_CLIENT_ID')
 STRAVA_CLIENT_SECRET = env('STRAVA_CLIENT_SECRET')
