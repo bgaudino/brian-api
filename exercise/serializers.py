@@ -35,6 +35,7 @@ class CardioSessionSerializer(serializers.ModelSerializer):
             'name',
             'distance', 
             'moving_time', 
+            'total_elevation_gain',
             'average_speed', 
             'max_speed', 
             'has_heartrate', 
