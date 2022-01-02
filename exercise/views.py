@@ -145,12 +145,17 @@ class StravaAuthView(APIView):
 
 class CardioListView(APIView):
     def get(self, request):
+        offset = int(request.query_params.get("offset", 0)) * 10
         strava_accounts = StravaAccount.objects.filter(user=request.user)
         cardio_sessions = CardioSession.objects.filter(
             user=request.user).order_by('-start_date')
+        count = cardio_sessions.count()
+        current_page = cardio_sessions[offset:offset+10]
+
         data = {
             "strava_accounts": StravaAccountSerializer(strava_accounts, many=True).data,
-            "cardio_sessions": CardioSessionSerializer(cardio_sessions, many=True).data,
+            "cardio_sessions": CardioSessionSerializer(current_page, many=True).data,
+            "count": cardio_sessions.count()
         }
         return Response(data)
 
