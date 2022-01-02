@@ -113,6 +113,8 @@ class StravaAuthView(APIView):
         try:
             account = StravaAccount.objects.get(
                 strava_id=data["athlete"]["id"])
+            if account.user != user:
+                return Response({"detail": "Account already authenticated by another user"}, status=status.HTTP_403_FORBIDDEN)
             print("Athlete already exists. Updating")
         except:
             account = StravaAccount(
