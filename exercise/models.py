@@ -86,6 +86,7 @@ class StravaAccount(models.Model):
         activities = res.json()
 
         for activity in activities:
+            print(activity)
             self.create_or_update_activity(activity)
 
     @check_tokens
@@ -99,20 +100,26 @@ class StravaAccount(models.Model):
                 strava_id=activity["id"]
             )
         except KeyError:
-            print(activity)
             return
         for key, value in activity.items():
-            setattr(cardio_session, key, value)
+            if key != "map":
+                setattr(cardio_session, key, value)
+        if "end_latlng" in activity:
+            cardio_session.end_latitude = activity["end_latlng"][0]
+            cardio_session.end_longitude = activity["end_latlng"][1]
         cardio_session.save()
         if "map" in activity:
             map_data = activity["map"]
-            map = Map(
-                cardio_session=cardio_session,
-                map_id=map_data.get("id"),
-                summary_polyline=map_data.get("summary_polyline", None),
-                resource_state=map_data.get("resource_state", None),
-            )
-            map.save()
+            try:
+                Map.objects.get(map_id=map_data.get("id"))
+            except Map.DoesNotExist:
+                Map.objects.create(
+                    cardio_session=cardio_session,
+                    map_id=map_data.get(
+                        "id"),
+                    summary_polyline=map_data.get("summary_polyline"),
+                    resource_state=map_data.get("resource_state")
+                )
         print("Activity saved")
 
     def refresh_tokens(self):
@@ -161,13 +168,24 @@ class CardioSession(models.Model):
         max_digits=10, decimal_places=2, blank=True, null=True)
     elev_low = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True)
+    start_latitude = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    start_longitude = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    end_latitude = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    end_longitude = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
     suffer_score = models.DecimalField(
         max_digits=10, decimal_places=2, null=True)
 
+    def __str__(self):
+        return f"{self.start_date.strftime('%m/%d/%y')} - {self.name}"
+
 
 class Map(models.Model):
-    cardio_session = models.ForeignKey(
-        CardioSession, related_name="maps",
+    cardio_session = models.OneToOneField(
+        CardioSession, related_name="map",
         on_delete=models.CASCADE
     )
     map_id = models.TextField()

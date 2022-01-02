@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Workout, Exercise, Set, CardioSession, StravaAccount
+from .models import Workout, Exercise, Set, CardioSession, StravaAccount, Map
 
 
 class SetSerializer(serializers.ModelSerializer):
@@ -25,7 +25,15 @@ class WorkoutSerializer(serializers.ModelSerializer):
         fields = ('id', 'start_date', 'exercises', 'exercises')
 
 
+class MapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Map
+        fields = ('id', 'summary_polyline')
+
+
 class CardioSessionSerializer(serializers.ModelSerializer):
+    map = MapSerializer(read_only=True)
+
     class Meta:
         model = CardioSession
         fields = (
@@ -33,15 +41,19 @@ class CardioSessionSerializer(serializers.ModelSerializer):
             'start_date',
             'start_date_local',
             'name',
-            'distance', 
-            'moving_time', 
+            'distance',
+            'moving_time',
             'total_elevation_gain',
-            'average_speed', 
-            'max_speed', 
-            'has_heartrate', 
+            'average_speed',
+            'max_speed',
+            'has_heartrate',
             'average_heartrate',
             'max_heartrate',
+            'map',
+            'start_latitude',
+            'start_longitude',
         )
+
 
 class StravaAccountSerializer(serializers.ModelSerializer):
     class Meta:
