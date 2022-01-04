@@ -37,3 +37,11 @@ class ScoreListView(APIView):
             "count": count,
             "scores": serializer.data
         })
+
+    def post(self, request):
+        serializer = ScoreSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            print(serializer.data)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
