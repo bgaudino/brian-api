@@ -5,6 +5,11 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 from django.utils import timezone
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from shopping.serializers import ItemSerializer
 
 from .forms import ShoppingForm
 from .models import Item
@@ -72,3 +77,55 @@ class ItemRestoreView(View):
         item.purchased_by = None
         item.save()
         return JsonResponse({"success": True})
+
+
+class ItemListAPIView(APIView):
+
+    def get(self, request):
+        items = Item.objects.filter(is_purchased=False).order_by("created_at")
+
+        this_week = timezone.now() - timedelta(days=7)
+        purchases = Item.objects.filter(is_purchased=True, purchased_at__gt=this_week).order_by(
+            '-purchased_at', 'created_at')
+
+        datalist = Item.objects.all().values('name').distinct().order_by('name')
+        response = {
+            "items": ItemSerializer(items, many=True).data,
+            "purchases": ItemSerializer(purchases, many=True).data,
+            "datalist": datalist,
+        }
+        return Response(response)
+
+    def post(self, request):
+        item = ItemSerializer(data=request.data)
+        if item.is_valid():
+            item.save()
+            return Response(item.data, status=status.HTTP_201_CREATED)
+        return Response(item.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ItemDetailAPIView(APIView):
+
+    def put(self, request, item_id):
+        try:
+            item = Item.objects.get(pk=item_id)
+        except Item.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if (request.data['is_purchased'] == True):
+            item.is_purchased = True
+            item.purchased_at = timezone.now()
+            item.purchased_by = request.user if request.user.is_authenticated else None
+        else:
+            item.is_purchased = False
+            item.purchased_at = None
+            item.purchased_by = None
+        item.save()
+        return Response(ItemSerializer(item).data)
+
+    def delete(self, request, item_id):
+        try:
+            item = Item.objects.get(pk=item_id)
+        except Item.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
