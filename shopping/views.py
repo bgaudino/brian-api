@@ -119,6 +119,10 @@ class ItemDetailAPIView(APIView):
             item.is_purchased = False
             item.purchased_at = None
             item.purchased_by = None
+        if "store" in request.data:
+            item.store = request.data['store']
+        if "name" in request.data:
+            item.name = request.data['name']
         item.save()
         return Response(ItemSerializer(item).data)
 
@@ -129,3 +133,4 @@ class ItemDetailAPIView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
