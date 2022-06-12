@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 import os
-
+from datetime import timedelta
 from pathlib import Path
+
 import environ
 
 env = environ.Env(
@@ -50,14 +51,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'nested_admin',
+
     'user',
     'shopping',
     'exercise',
     'music',
+    'diet',
 ]
 
 
@@ -128,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Chicago'
 
 USE_I18N = True
 
@@ -152,6 +156,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     )
 }
 
@@ -160,3 +165,8 @@ STRAVA_CLIENT_SECRET = env('STRAVA_CLIENT_SECRET')
 STRAVA_WEBHOOK_VERIFY_TOKEN = env('STRAVA_WEBHOOK_VERIFY_TOKEN')
 
 SITE_URL = env('SITE_URL')
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+}
