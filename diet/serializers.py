@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import ConsumedFood, Food
 
+
 class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
@@ -15,30 +16,47 @@ class FoodSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id',)
 
-        
+class FoodNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = ('name',)
+
 class ConsumedFoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsumedFood
         fields = (
             'date',
             'food',
+            'servings',
         )
- 
+
+
 class ConsumedFoodListSerializer(serializers.ModelSerializer):
-    food = FoodSerializer()
+    food = FoodNameSerializer()
+    total_calories = serializers.IntegerField()
+    total_fat = serializers.IntegerField()
+    total_protein = serializers.IntegerField()
+    total_carbs = serializers.IntegerField()
+
     class Meta:
         model = ConsumedFood
         fields = (
             'food',
             'id',
-        )
+            'servings',
+            'total_calories',
+            'total_fat',
+            'total_protein',
+            'total_carbs',
+         )
         read_only_fields = ('id',)
-        
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         food_representation = representation.pop('food')
         for key, value in food_representation.items():
-            if key != 'id':
-                representation[key] = value
-            
+            if key == 'id':
+                continue
+            representation[key] = value
+
         return representation

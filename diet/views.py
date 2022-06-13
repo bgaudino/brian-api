@@ -24,10 +24,10 @@ class ConsumedFoodListView(ListAPIView):
     serializer_class = ConsumedFoodListSerializer
 
     def get_queryset(self):
-        return ConsumedFood.objects.filter(
+        return ConsumedFood.with_totals(ConsumedFood.objects.filter(
             user=self.request.user,
             date=self.kwargs.get('date') or date.today()
-        ).select_related('food')
+        ).select_related('food'))
 
     def list(self, *args, **kwargs):
         queryset = self.get_queryset()

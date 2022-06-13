@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F, Sum
 from django.conf import settings
 
 
@@ -25,13 +26,25 @@ class ConsumedFood(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
+    servings = models.IntegerField(default=1)
 
     def __str__(self):
         return f'{self.user} - {self.food} - {self.date}'
 
-    @staticmethod
-    def nutrition(queryset):
-        fields = ['calories', 'fat', 'protein', 'carbs']
-        return {
-            field: queryset.aggregate(sum=models.Sum(f'food__{field}'))['sum'] for field in fields
-        }
+    @classmethod
+    def with_totals(cls, queryset):
+        return queryset.annotate(
+            total_calories=F('servings') * F('food__calories'),
+            total_fat=F('servings') * F('food__fat'),
+            total_protein=F('servings') * F('food__protein'),
+            total_carbs=F('servings') * F('food__carbs'),
+        )
+
+    @classmethod
+    def nutrition(cls, queryset):
+        return cls.with_totals(queryset).aggregate(
+            calories=Sum('total_calories'),
+            fat=Sum('total_fat'),
+            protein=Sum('total_protein'),
+            carbs=Sum('total_carbs')
+        )
