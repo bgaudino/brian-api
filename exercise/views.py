@@ -160,6 +160,12 @@ class CardioListView(APIView):
         weekly_stats = cardio_sessions.filter(
             start_date__gte=now() - timedelta(days=7)
         ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
+        monthly_stats = cardio_sessions.filter(
+            start_date__gte=now() - timedelta(days=30)
+        ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
+        yearly_stats = cardio_sessions.filter(
+            start_date__gte=now() - timedelta(days=365)
+        ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
         current_page = cardio_sessions[offset:offset+10]
 
         data = {
@@ -167,6 +173,8 @@ class CardioListView(APIView):
             "cardio_sessions": CardioSessionSerializer(current_page, many=True).data,
             "count": cardio_sessions.count(),
             "weekly_stats": weekly_stats,
+            "monthly_stats": monthly_stats,
+            "yearly_stats": yearly_stats,
         }
         return Response(data)
 
