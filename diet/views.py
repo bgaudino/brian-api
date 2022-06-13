@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -24,16 +24,25 @@ class ConsumedFoodListView(ListAPIView):
     serializer_class = ConsumedFoodListSerializer
 
     def get_queryset(self):
-        return ConsumedFood.with_totals(ConsumedFood.objects.filter(
+        return ConsumedFood.objects.with_totals(
             user=self.request.user,
-            date=self.kwargs.get('date') or date.today()
-        ).select_related('food'))
+            date=self.kwargs.get('date', date.today())
+        )
 
     def list(self, *args, **kwargs):
         queryset = self.get_queryset()
-        return Response({
+        today = date.today()
+        weekly_nutrition = [
+            ConsumedFood.nutrition(
+                ConsumedFood.objects.with_totals(
+                    user=self.request.user,
+                    date=today - timedelta(days=i)
+                )
+            ) for i in range(7)]
+        return Response({ 
             'food': ConsumedFoodListSerializer(queryset, many=True).data,
-            'nutrition': ConsumedFood.nutrition(queryset)
+            'nutrition': ConsumedFood.nutrition(queryset),
+            'weekly_nutrition': weekly_nutrition
         })
 
 

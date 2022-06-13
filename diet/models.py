@@ -20,6 +20,16 @@ class Food(models.Model):
         return self.name
 
 
+class ConsumedFoodManager(models.Manager):
+    def with_totals(self, **kwargs):
+        return self.filter(**kwargs).annotate(
+            total_calories=F('servings') * F('food__calories'),
+            total_fat=F('servings') * F('food__fat'),
+            total_protein=F('servings') * F('food__protein'),
+            total_carbs=F('servings') * F('food__carbs'),
+        )
+
+
 class ConsumedFood(models.Model):
     date = models.DateField()
     food = models.ForeignKey(Food, on_delete=models.PROTECT)
@@ -31,20 +41,15 @@ class ConsumedFood(models.Model):
     def __str__(self):
         return f'{self.user} - {self.food} - {self.date}'
 
-    @classmethod
-    def with_totals(cls, queryset):
-        return queryset.annotate(
-            total_calories=F('servings') * F('food__calories'),
-            total_fat=F('servings') * F('food__fat'),
-            total_protein=F('servings') * F('food__protein'),
-            total_carbs=F('servings') * F('food__carbs'),
-        )
+    objects = ConsumedFoodManager()
 
-    @classmethod
-    def nutrition(cls, queryset):
-        return cls.with_totals(queryset).aggregate(
+    @staticmethod
+    def nutrition(queryset):
+        return queryset.aggregate(
             calories=Sum('total_calories'),
             fat=Sum('total_fat'),
             protein=Sum('total_protein'),
             carbs=Sum('total_carbs')
         )
+        
+        
