@@ -13,7 +13,7 @@ class FoodListView(ListCreateAPIView):
     serializer_class = FoodSerializer
 
     def get_queryset(self):
-        return Food.objects.filter(user=self.request.user)
+        return Food.objects.filter(user=self.request.user).order_by('name')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
