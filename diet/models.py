@@ -1,4 +1,5 @@
-from os import dup
+import datetime
+
 from django.db import models
 from django.db.models import F, Sum
 from django.conf import settings
@@ -30,6 +31,18 @@ class ConsumedFoodManager(models.Manager):
             total_carbs=F('servings') * F('food__carbs'),
         )
 
+    def by_day_with_totals(self, days=7, **kwargs):
+        date = datetime.date.today() - datetime.timedelta(days=days)
+        return self.with_totals(date__gte=date) \
+            .extra(select={'day': 'date(date)'}) \
+            .values('day') \
+            .annotate(
+                calories=Sum('total_calories'),
+                fat=Sum('total_fat'),
+                protein=Sum('total_protein'),
+                carbs=Sum('total_carbs'),
+            ).order_by('-day')
+
 
 class ConsumedFood(models.Model):
     date = models.DateField()
@@ -37,7 +50,8 @@ class ConsumedFood(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
-    servings = models.DecimalField(default=1, max_digits=5, decimal_places=2)
+    servings = models.DecimalField(
+        default=1, max_digits=5, decimal_places=2)
 
     def __str__(self):
         return f'{self.user} - {self.food} - {self.date}'

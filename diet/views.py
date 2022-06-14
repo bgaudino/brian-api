@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Food, ConsumedFood
-from .serializers import ConsumedFoodListSerializer, ConsumedFoodSerializer, FoodSerializer
+from .serializers import ByDayWithTotalsSerializer, ConsumedFoodListSerializer, ConsumedFoodSerializer, FoodSerializer
 
 
 class FoodListView(ListCreateAPIView):
@@ -31,18 +31,12 @@ class ConsumedFoodListView(ListAPIView):
 
     def list(self, *args, **kwargs):
         queryset = self.get_queryset()
-        today = date.today()
-        weekly_nutrition = [
-            ConsumedFood.nutrition(
-                ConsumedFood.objects.with_totals(
-                    user=self.request.user,
-                    date=today - timedelta(days=i)
-                )
-            ) for i in range(7)]
-        return Response({ 
+        weekly_nutrition = ConsumedFood.objects.by_day_with_totals(days=7)
+
+        return Response({
             'food': ConsumedFoodListSerializer(queryset, many=True).data,
             'nutrition': ConsumedFood.nutrition(queryset),
-            'weekly_nutrition': weekly_nutrition
+            'weekly_nutrition': ByDayWithTotalsSerializer(weekly_nutrition, many=True).data,
         })
 
 

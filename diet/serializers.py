@@ -16,10 +16,12 @@ class FoodSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id',)
 
+
 class FoodNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
         fields = ('name',)
+
 
 class ConsumedFoodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,7 +50,7 @@ class ConsumedFoodListSerializer(serializers.ModelSerializer):
             'total_fat',
             'total_protein',
             'total_carbs',
-         )
+        )
         read_only_fields = ('id',)
 
     def to_representation(self, instance):
@@ -60,3 +62,11 @@ class ConsumedFoodListSerializer(serializers.ModelSerializer):
             representation[key] = value
 
         return representation
+
+
+class ByDayWithTotalsSerializer(serializers.Serializer):
+    day = serializers.DateField()
+    calories = serializers.IntegerField()
+    fat = serializers.DecimalField(decimal_places=1, max_digits=4)
+    protein = serializers.DecimalField(decimal_places=1, max_digits=4)
+    carbs = serializers.DecimalField(decimal_places=1, max_digits=4)
