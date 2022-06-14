@@ -37,7 +37,7 @@ class ConsumedFood(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
-    servings = models.IntegerField(default=1)
+    servings = models.DecimalField(default=1, max_digits=5, decimal_places=2)
 
     def __str__(self):
         return f'{self.user} - {self.food} - {self.date}'
