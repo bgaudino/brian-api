@@ -1,3 +1,4 @@
+from os import dup
 from django.db import models
 from django.db.models import F, Sum
 from django.conf import settings
@@ -43,6 +44,19 @@ class ConsumedFood(models.Model):
 
     objects = ConsumedFoodManager()
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            try:
+                duplicate = ConsumedFood.objects.get(
+                    date=self.date, food=self.food
+                )
+                duplicate.servings = F('servings') + self.servings
+                duplicate.save()
+                return
+            except ConsumedFood.DoesNotExist:
+                pass
+        super().save(*args, **kwargs)
+
     @staticmethod
     def nutrition(queryset):
         return queryset.aggregate(
@@ -51,5 +65,3 @@ class ConsumedFood(models.Model):
             protein=Sum('total_protein'),
             carbs=Sum('total_carbs')
         )
-        
-        
