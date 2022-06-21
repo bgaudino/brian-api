@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/user/', include('user.urls')),
     path('api/music/', include('music.urls')),
     path('api/diet/', include('diet.urls')),
+    path('api/weight/', include('weight.urls')),
     path('', include('shopping.urls')),
 ]

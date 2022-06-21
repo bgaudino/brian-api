@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'exercise',
     'music',
     'diet',
+    'weight',
 ]
 
 
