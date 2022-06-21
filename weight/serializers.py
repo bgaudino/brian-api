@@ -9,7 +9,9 @@ class WeighInSerializer(serializers.ModelSerializer):
         fields = (
             'date',
             'weight',
+            'id',
         )
+        read_only_fields = ('id',)
 
     def create(self, validated_data):
         weigh_in = WeighIn.objects.update_or_create(
