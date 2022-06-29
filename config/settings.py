@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'music',
     'diet',
     'weight',
+    'todo',
 ]
 
 
