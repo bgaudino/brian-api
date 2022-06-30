@@ -3,7 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView
 from django.utils.timezone import now, timedelta
 from django.db.models import Q
 
@@ -43,3 +43,13 @@ def todo_complete_view(request, pk):
     return JsonResponse({
         'success': True
     })
+
+
+class TodoDeleteView(DeleteView):
+    model = Todo
+
+    def get(self, request, *args, **kwargs):
+        return redirect(reverse('todo_list_view'))
+
+    def get_success_url(self):
+        return reverse('todo_list_view')

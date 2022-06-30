@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.TodoListView.as_view(), name='todo_list_view'),
     path('create/', views.todo_create_view, name='todo_create_view'),
     path('<int:pk>/complete/', views.todo_complete_view, name='todo_complete_view'),
+    path('<int:pk>/delete/', views.TodoDeleteView.as_view(), name='todo_delete_view')
 ]

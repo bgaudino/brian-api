@@ -7,22 +7,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <title>Todo List</title>
 </head>
 
 <body>
-  <nav class="navbar navbar-dark bg-primary">
+  <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Brian and Lucy's Interminable List of Meaningless Tasks</span>
+      <span class="navbar-brand mt-2">
+        <pre>
+Brian and Lucy's
+    Interminable List
+        of Meaingless Tasks</pre>
+      </span>
     </div>
   </nav>
   <div class="container mt-5">
     <form method="POST" action="{% url 'todo_create_view' %}">
       <div class="input-group">
-        <input name="name" type="text" class="form-control"     placeholder="Todo" aria-label="Todo"
+        <input name="name" type="text" class="form-control"
+          placeholder="Todo" aria-label="Todo"
           aria-describedby="button-addon" autofocus
         >
         <a class="btn btn-outline-secondary" href="">
@@ -38,29 +41,40 @@
 
     {% regroup todos by is_completed as todos %}
 
-    {% for country in todos %}
+    {% for t in todos %}
       <section class="my-3">
         <div class="card">
           <div class="card-header">
-            {% if country.grouper %}Done{% else %}Todo{% endif %}
+            {% if t.grouper %}Done{% else %}Todo{% endif %}
           </div>
           <div class="card-body">
-            {% for todo in country.list %}
-              <div class="form-check">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox"
-                  id="todo-{{ todo.pk }}" 
-                  data-todo="{{ todo.pk }}"
-                  {% if country.grouper %}checked{% endif %}
-                >
-                <label class="form-check-label" for="todo-{{ todo.pk }}">
-                  {% if country.grouper %}
-                    <del>{{ todo.name }}</del>
-                  {% else %}
-                    {{ todo.name }}
-                  {% endif %}
-                </label>
+            {% for todo in t.list %}
+              <div class="d-flex w-100 justify-content-between align-items-center my-1">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox"
+                    id="todo-{{ todo.pk }}" 
+                    data-todo="{{ todo.pk }}"
+                    {% if t.grouper %}checked{% endif %}
+                  >
+                  <label class="form-check-label" for="todo-{{ todo.pk }}">
+                    {% if t.grouper %}
+                      <del>{{ todo.name }}</del>
+                    {% else %}
+                      {{ todo.name }}
+                    {% endif %}
+                  </label>
+                </div>
+                <form method="POST" action="{% url 'todo_delete_view' todo.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn-danger" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                  </button>
+                </form>
               </div>
             {% endfor %}
           </div>
@@ -71,6 +85,10 @@
 </body>
 
 <script>
+  document.querySelector('form').onsubmit = (e) => {
+    if (!document.querySelector('input').value) e.preventDefault();
+  }
+  
   document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
     checkbox.onchange = () => {
       fetch(`/todo/${checkbox.dataset.todo}/complete/`, {
