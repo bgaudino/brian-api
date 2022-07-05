@@ -1,0 +1,8 @@
+django==4.0.6
+djangorestframework
+django-cors-headers
+djangorestframework-simplejwt
+django-nested-admin
+python-environ
+requests
+
