@@ -1,14 +1,17 @@
-const form = document.querySelector("form");
+const form = document.querySelector('form');
 form.onsubmit = (e) => {
   e.preventDefault();
-  setTimeout(() => document.querySelector('progress').style.display = 'block', 1000);
-  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-  const item = document.getElementsByName("item")[0].value;
-  fetch("/", {
-    method: "POST",
+  setTimeout(
+    () => (document.querySelector('progress').style.display = 'block'),
+    1000
+  );
+  const token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  const item = document.getElementsByName('item')[0].value;
+  fetch('/shopping/', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": token,
+      'Content-Type': 'application/json',
+      'X-CSRFToken': token,
     },
     body: JSON.stringify({
       item: item,
@@ -17,41 +20,44 @@ form.onsubmit = (e) => {
     if (response.ok) {
       window.location.reload();
     } else {
-      alert("Error: " + response.statusText);
+      alert('Error: ' + response.statusText);
       window.location.reload();
     }
   });
 };
 
-const buyButtons = document.querySelectorAll(".buyButton");
+const buyButtons = document.querySelectorAll('.buyButton');
 buyButtons.forEach(
   (button) =>
     (button.onclick = (e) => {
-      makeRequest(e.target, `/purchase/${button.value}/`, "PUT");
+      makeRequest(e.target, `/shopping/purchase/${button.value}/`, 'PUT');
     })
 );
 
-const deleteButtons = document.querySelectorAll(".deleteButton");
+const deleteButtons = document.querySelectorAll('.deleteButton');
 deleteButtons.forEach(
   (button) =>
     (button.onclick = (e) =>
-      makeRequest(e.target, `/delete/${button.value}/`, "DELETE"))
+      makeRequest(e.target, `/shopping/delete/${button.value}/`, 'DELETE'))
 );
 
-const restoreButton = document.querySelectorAll(".restoreButton");
+const restoreButton = document.querySelectorAll('.restoreButton');
 restoreButton.forEach(
   (button) =>
     (button.onclick = (e) =>
-      makeRequest(e.target, `/restore/${button.value}/`, "PUT"))
+      makeRequest(e.target, `/shopping/restore/${button.value}/`, 'PUT'))
 );
 
 function makeRequest(element, url, method) {
-  const token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-  setTimeout(() => document.querySelector('progress').style.display = 'block', 1000);
+  const token = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+  setTimeout(
+    () => (document.querySelector('progress').style.display = 'block'),
+    1000
+  );
   fetch(url, {
     method: method,
     headers: {
-      "X-CSRFToken": token,
+      'X-CSRFToken': token,
     },
   })
     .then((response) => {
@@ -59,11 +65,11 @@ function makeRequest(element, url, method) {
       if (response.ok) {
         window.location.reload();
       } else {
-        alert("Error: " + response.statusText);
+        alert('Error: ' + response.statusText);
         window.location.reload();
       }
-      if (method === "PUT") {
-        const purchasedList = document.getElementById("purchasedList");
+      if (method === 'PUT') {
+        const purchasedList = document.getElementById('purchasedList');
       }
     })
     .catch((error) => {
