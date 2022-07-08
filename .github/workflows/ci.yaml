@@ -1,6 +1,15 @@
 name: Testing
 on: push
 
+env:
+  SECRET_KEY: secret_key
+  DEBUG: False
+  ENVIRONMENT: test
+  SITE_URL: http://localhost:8000
+  STRAVA_CLIENT_ID: foo
+  STRAVA_CLIENT_SECRET: bar
+  STRAVA_WEBHOOK_VERIFY_TOKEN: baz
+
 jobs:
   test_project:
     runs-on: ubuntu-latest
