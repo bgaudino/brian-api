@@ -19,3 +19,12 @@ jobs:
       run: |
         pip3 install --user -r requirements.txt
         python3 manage.py test
+
+  run_black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run black code formatter
+      run: |
+        pip3 install --user black
+        black .
