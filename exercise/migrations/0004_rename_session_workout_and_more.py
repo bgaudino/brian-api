@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0001_initial'),
-        ('exercise', '0003_alter_session_user'),
+        ("user", "0001_initial"),
+        ("exercise", "0003_alter_session_user"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Session',
-            new_name='Workout',
+            old_name="Session",
+            new_name="Workout",
         ),
         migrations.RenameField(
-            model_name='exercise',
-            old_name='session',
-            new_name='workout',
+            model_name="exercise",
+            old_name="session",
+            new_name="workout",
         ),
     ]

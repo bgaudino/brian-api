@@ -9,19 +9,31 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('shopping', '0001_initial'),
-        ('user', '0001_initial'),
+        ("shopping", "0001_initial"),
+        ("user", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='item',
-            name='added_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='items_added', to='user.user'),
+            model_name="item",
+            name="added_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="items_added",
+                to="user.user",
+            ),
         ),
         migrations.AddField(
-            model_name='item',
-            name='purchased_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='items_purchased', to='user.user'),
+            model_name="item",
+            name="purchased_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="items_purchased",
+                to="user.user",
+            ),
         ),
     ]

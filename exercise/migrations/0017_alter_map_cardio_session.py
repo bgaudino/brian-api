@@ -7,13 +7,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exercise', '0016_alter_map_cardio_session'),
+        ("exercise", "0016_alter_map_cardio_session"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='map',
-            name='cardio_session',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='map', to='exercise.cardiosession'),
+            model_name="map",
+            name="cardio_session",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="map",
+                to="exercise.cardiosession",
+            ),
         ),
     ]

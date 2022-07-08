@@ -21,7 +21,7 @@ def create_fake_scores(num_scores):
             name=name,
             num_attempted=num_attempted,
             num_correct=num_correct,
-            game_type=game_type
+            game_type=game_type,
         )
         score.save()
     print(f"Created {num_scores} fake scores")

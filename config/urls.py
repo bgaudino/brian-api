@@ -23,19 +23,19 @@ from rest_framework_simplejwt.views import (
 
 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, "index.html")
 
 
 urlpatterns = [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('admin/', admin.site.urls),
-    path('api/exercise/', include('exercise.urls')),
-    path('api/user/', include('user.urls')),
-    path('api/music/', include('music.urls')),
-    path('api/diet/', include('diet.urls')),
-    path('api/weight/', include('weight.urls')),
-    path('todo/', include('todo.urls')),
-    path('', include('shopping.urls')),
-    path('', index, name='index')
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("admin/", admin.site.urls),
+    path("api/exercise/", include("exercise.urls")),
+    path("api/user/", include("user.urls")),
+    path("api/music/", include("music.urls")),
+    path("api/diet/", include("diet.urls")),
+    path("api/weight/", include("weight.urls")),
+    path("todo/", include("todo.urls")),
+    path("", include("shopping.urls")),
+    path("", index, name="index"),
 ]

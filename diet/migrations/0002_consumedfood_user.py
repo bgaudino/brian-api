@@ -7,15 +7,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0001_initial'),
-        ('diet', '0001_initial'),
+        ("user", "0001_initial"),
+        ("diet", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='consumedfood',
-            name='user',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='user.user'),
+            model_name="consumedfood",
+            name="user",
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="user.user"
+            ),
             preserve_default=False,
         ),
     ]

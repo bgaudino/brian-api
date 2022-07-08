@@ -9,20 +9,40 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user', '0001_initial'),
+        ("user", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Score',
+            name="Score",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(auto_now_add=True)),
-                ('name', models.CharField(max_length=100)),
-                ('num_correct', models.IntegerField(default=0)),
-                ('num_attempted', models.IntegerField(default=0)),
-                ('percentage', models.DecimalField(decimal_places=2, default=0, max_digits=5)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='scores', to='user.user')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateTimeField(auto_now_add=True)),
+                ("name", models.CharField(max_length=100)),
+                ("num_correct", models.IntegerField(default=0)),
+                ("num_attempted", models.IntegerField(default=0)),
+                (
+                    "percentage",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=5),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="scores",
+                        to="user.user",
+                    ),
+                ),
             ],
         ),
     ]

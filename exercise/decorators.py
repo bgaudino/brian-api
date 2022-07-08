@@ -11,4 +11,5 @@ def check_tokens(func):
             print("Refreshing tokens")
             account.refresh_tokens()
         return func(*args, **kwargs)
+
     return wrapper

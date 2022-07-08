@@ -8,15 +8,24 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_WEBHOOK_VERIFY_TOKEN
+from config.settings import (
+    STRAVA_CLIENT_ID,
+    STRAVA_CLIENT_SECRET,
+    STRAVA_WEBHOOK_VERIFY_TOKEN,
+)
 from .models import Workout, Exercise, Set, StravaAccount, CardioSession
-from .serializers import WorkoutSerializer, ExerciseSerializer, SetSerializer, CardioSessionSerializer, StravaAccountSerializer
+from .serializers import (
+    WorkoutSerializer,
+    ExerciseSerializer,
+    SetSerializer,
+    CardioSessionSerializer,
+    StravaAccountSerializer,
+)
 
 
 class WorkoutListView(APIView):
     def get(self, request):
-        workouts = Workout.objects.filter(
-            user=request.user).order_by('-start_date')
+        workouts = Workout.objects.filter(user=request.user).order_by("-start_date")
         data = WorkoutSerializer(workouts, many=True).data
         return Response(data)
 
@@ -42,18 +51,17 @@ class WorkoutView(APIView):
 
 class ExerciseCreateUpdateView(APIView):
     def post(self, request):
-        workout = Workout.objects.get(
-            id=request.data["workout_id"], user=request.user)
+        workout = Workout.objects.get(id=request.data["workout_id"], user=request.user)
         exercise = Exercise.objects.create(
-            workout=workout,
-            exercise_name=request.data["exercise_name"]
+            workout=workout, exercise_name=request.data["exercise_name"]
         )
         data = ExerciseSerializer(exercise).data
         return Response(data)
 
     def put(self, request):
         exercise = Exercise.objects.get(
-            id=request.data["exercise_id"], workout__user=request.user)
+            id=request.data["exercise_id"], workout__user=request.user
+        )
         for key, value in request.data.items():
             if key != "exercise_id":
                 setattr(exercise, key, value)
@@ -72,12 +80,10 @@ class ExerciseDeleteView(APIView):
 class SetCreateUpdateView(APIView):
     def post(self, request):
         exercise_id = request.data["exercise_id"]
-        exercise = Exercise.objects.get(
-            id=exercise_id, workout__user=request.user)
+        exercise = Exercise.objects.get(id=exercise_id, workout__user=request.user)
         set = Set.objects.create(
-            exercise=exercise,
-            weight=request.data["weight"],
-            reps=request.data["reps"])
+            exercise=exercise, weight=request.data["weight"], reps=request.data["reps"]
+        )
         data = SetSerializer(set).data
         return Response(data)
 
@@ -113,25 +119,18 @@ class StravaAuthView(APIView):
 
         user = request.user
         try:
-            account = StravaAccount.objects.get(
-                strava_id=data["athlete"]["id"]
-            )
+            account = StravaAccount.objects.get(strava_id=data["athlete"]["id"])
             if account.user != user:
                 return Response(
                     {"detail": "Account already authenticated by another user"},
-                    status=status.HTTP_403_FORBIDDEN
+                    status=status.HTTP_403_FORBIDDEN,
                 )
             print("Athlete already exists. Updating")
         except:
-            account = StravaAccount(
-                user=user,
-                strava_id=data["athlete"]["id"]
-            )
+            account = StravaAccount(user=user, strava_id=data["athlete"]["id"])
             print("Creating new athlete")
         account.token_type = data["token_type"]
-        account.expires_at = make_aware(
-            datetime.utcfromtimestamp(data["expires_at"])
-        )
+        account.expires_at = make_aware(datetime.utcfromtimestamp(data["expires_at"]))
         account.access_token = data["access_token"]
         account.refresh_token = data["refresh_token"]
         account.username = data["athlete"]["username"]
@@ -154,19 +153,25 @@ class CardioListView(APIView):
     def get(self, request):
         offset = int(request.query_params.get("offset", 0)) * 10
         strava_accounts = StravaAccount.objects.filter(user=request.user)
-        cardio_sessions = CardioSession.objects.filter(
-            user=request.user
-        ).order_by('-start_date')
+        cardio_sessions = CardioSession.objects.filter(user=request.user).order_by(
+            "-start_date"
+        )
         weekly_stats = cardio_sessions.filter(
             start_date__gte=now() - timedelta(days=7)
-        ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
+        ).aggregate(
+            runs=Count("id"), distance=Sum("distance"), duration=Sum("moving_time")
+        )
         monthly_stats = cardio_sessions.filter(
             start_date__gte=now() - timedelta(days=30)
-        ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
+        ).aggregate(
+            runs=Count("id"), distance=Sum("distance"), duration=Sum("moving_time")
+        )
         yearly_stats = cardio_sessions.filter(
             start_date__gte=now() - timedelta(days=365)
-        ).aggregate(runs=Count('id'), distance=Sum('distance'), duration=Sum('moving_time'))
-        current_page = cardio_sessions[offset:offset+10]
+        ).aggregate(
+            runs=Count("id"), distance=Sum("distance"), duration=Sum("moving_time")
+        )
+        current_page = cardio_sessions[offset : offset + 10]
 
         data = {
             "strava_accounts": StravaAccountSerializer(strava_accounts, many=True).data,
@@ -185,9 +190,7 @@ class StravaWebhookView(APIView):
         print(params)
         if params.get("hub.verify_token") != STRAVA_WEBHOOK_VERIFY_TOKEN:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        return Response({
-            "hub.challenge": params.get("hub.challenge")
-        })
+        return Response({"hub.challenge": params.get("hub.challenge")})
 
     def post(self, request):
         owner_id = request.data["owner_id"]

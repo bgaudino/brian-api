@@ -1,7 +1,12 @@
 import requests
 
 from django.core.management.base import BaseCommand
-from config.settings import STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, SITE_URL, STRAVA_WEBHOOK_VERIFY_TOKEN
+from config.settings import (
+    STRAVA_CLIENT_ID,
+    STRAVA_CLIENT_SECRET,
+    SITE_URL,
+    STRAVA_WEBHOOK_VERIFY_TOKEN,
+)
 
 
 class Command(BaseCommand):

@@ -48,8 +48,7 @@ class Set(models.Model):
 class StravaAccount(models.Model):
     strava_id = models.IntegerField()
     user = models.ForeignKey(
-        User, related_name="strava_accounts",
-        on_delete=models.CASCADE
+        User, related_name="strava_accounts", on_delete=models.CASCADE
     )
     access_token = models.TextField()
     refresh_token = models.TextField()
@@ -68,9 +67,7 @@ class StravaAccount(models.Model):
         return f"{self.username}'s Strava Account"
 
     def get_headers(self):
-        return {
-            "Authorization": f"Bearer {self.access_token}"
-        }
+        return {"Authorization": f"Bearer {self.access_token}"}
 
     @check_tokens
     def get_single_activity(self, activity_id):
@@ -92,13 +89,9 @@ class StravaAccount(models.Model):
     @check_tokens
     def create_or_update_activity(self, activity):
         try:
-            cardio_session = CardioSession.objects.get(
-                strava_id=activity["id"])
+            cardio_session = CardioSession.objects.get(strava_id=activity["id"])
         except CardioSession.DoesNotExist:
-            cardio_session = CardioSession(
-                user=self.user,
-                strava_id=activity["id"]
-            )
+            cardio_session = CardioSession(user=self.user, strava_id=activity["id"])
         except KeyError:
             return
         for key, value in activity.items():
@@ -115,10 +108,9 @@ class StravaAccount(models.Model):
             except Map.DoesNotExist:
                 Map.objects.create(
                     cardio_session=cardio_session,
-                    map_id=map_data.get(
-                        "id"),
+                    map_id=map_data.get("id"),
                     summary_polyline=map_data.get("summary_polyline"),
-                    resource_state=map_data.get("resource_state")
+                    resource_state=map_data.get("resource_state"),
                 )
         print("Activity saved")
 
@@ -132,16 +124,14 @@ class StravaAccount(models.Model):
         res = requests.post("https://www.strava.com/oauth/token", json=body)
         data = res.json()
         self.token_type = data["token_type"]
-        self.expires_at = make_aware(
-            datetime.utcfromtimestamp(data["expires_at"]))
+        self.expires_at = make_aware(datetime.utcfromtimestamp(data["expires_at"]))
         self.access_token = data["access_token"]
         self.save()
 
 
 class CardioSession(models.Model):
     user = models.ForeignKey(
-        User, related_name="cardio_seesions",
-        on_delete=models.CASCADE
+        User, related_name="cardio_seesions", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
     distance = models.DecimalField(max_digits=10, decimal_places=2)
@@ -161,23 +151,30 @@ class CardioSession(models.Model):
     max_speed = models.DecimalField(max_digits=10, decimal_places=2)
     has_heartrate = models.BooleanField(default=False)
     average_heartrate = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
     max_heartrate = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
     elev_high = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
     elev_low = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True)
+        max_digits=10, decimal_places=2, blank=True, null=True
+    )
     start_latitude = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     start_longitude = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     end_latitude = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
     end_longitude = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True)
-    suffer_score = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True)
+        max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    suffer_score = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     def __str__(self):
         return f"{self.start_date.strftime('%m/%d/%y')} - {self.name}"
@@ -185,8 +182,7 @@ class CardioSession(models.Model):
 
 class Map(models.Model):
     cardio_session = models.OneToOneField(
-        CardioSession, related_name="map",
-        on_delete=models.CASCADE
+        CardioSession, related_name="map", on_delete=models.CASCADE
     )
     map_id = models.TextField()
     summary_polyline = models.TextField(null=True, blank=True)

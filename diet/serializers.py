@@ -7,29 +7,29 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
         fields = (
-            'name',
-            'calories',
-            'fat',
-            'carbs',
-            'protein',
-            'id',
+            "name",
+            "calories",
+            "fat",
+            "carbs",
+            "protein",
+            "id",
         )
-        read_only_fields = ('id',)
+        read_only_fields = ("id",)
 
 
 class FoodNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        fields = ('name',)
+        fields = ("name",)
 
 
 class ConsumedFoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsumedFood
         fields = (
-            'date',
-            'food',
-            'servings',
+            "date",
+            "food",
+            "servings",
         )
 
 
@@ -43,21 +43,21 @@ class ConsumedFoodListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConsumedFood
         fields = (
-            'food',
-            'id',
-            'servings',
-            'total_calories',
-            'total_fat',
-            'total_protein',
-            'total_carbs',
+            "food",
+            "id",
+            "servings",
+            "total_calories",
+            "total_fat",
+            "total_protein",
+            "total_carbs",
         )
-        read_only_fields = ('id',)
+        read_only_fields = ("id",)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        food_representation = representation.pop('food')
+        food_representation = representation.pop("food")
         for key, value in food_representation.items():
-            if key == 'id':
+            if key == "id":
                 continue
             representation[key] = value
 

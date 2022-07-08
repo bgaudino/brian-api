@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exercise', '0007_cardiosession_map'),
+        ("exercise", "0007_cardiosession_map"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cardiosession',
-            name='average_heartrate',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            model_name="cardiosession",
+            name="average_heartrate",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='cardiosession',
-            name='max_heartrate',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
+            model_name="cardiosession",
+            name="max_heartrate",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, max_digits=10, null=True
+            ),
         ),
     ]

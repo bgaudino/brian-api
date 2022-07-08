@@ -16,16 +16,17 @@ from .models import Item
 
 
 class ItemView(View):
-
     def get(self, request):
         items = Item.objects.filter(is_purchased=False).order_by("created_at")
         two_weeks_ago = timezone.now() - timedelta(days=14)
-        purchased = Item.objects.filter(is_purchased=True, purchased_at__gt=two_weeks_ago).order_by(
-            '-purchased_at', 'created_at')
+        purchased = Item.objects.filter(
+            is_purchased=True, purchased_at__gt=two_weeks_ago
+        ).order_by("-purchased_at", "created_at")
         if not purchased.exists():
             purchased = Item.objects.filter(is_purchased=True).order_by(
-                '-purchased_at', 'created_at')[:20]
-        datalist = Item.objects.all().values('name').distinct().order_by('name')
+                "-purchased_at", "created_at"
+            )[:20]
+        datalist = Item.objects.all().values("name").distinct().order_by("name")
         response = {
             "items": items,
             "purchased": purchased,
@@ -50,7 +51,6 @@ class ItemView(View):
 
 
 class ItemPurchaseView(View):
-
     def put(self, request, item_id):
         item = Item.objects.get(pk=item_id)
         item.is_purchased = True
@@ -61,7 +61,6 @@ class ItemPurchaseView(View):
 
 
 class ItemDeleteView(View):
-
     def delete(self, request, item_id):
         item = Item.objects.get(pk=item_id)
         item.delete()
@@ -69,7 +68,6 @@ class ItemDeleteView(View):
 
 
 class ItemRestoreView(View):
-
     def put(self, request, item_id):
         item = Item.objects.get(pk=item_id)
         item.is_purchased = False
@@ -80,15 +78,15 @@ class ItemRestoreView(View):
 
 
 class ItemListAPIView(APIView):
-
     def get(self, request):
         items = Item.objects.filter(is_purchased=False).order_by("created_at")
 
         this_week = timezone.now() - timedelta(days=7)
-        purchases = Item.objects.filter(is_purchased=True, purchased_at__gt=this_week).order_by(
-            '-purchased_at', 'created_at')
+        purchases = Item.objects.filter(
+            is_purchased=True, purchased_at__gt=this_week
+        ).order_by("-purchased_at", "created_at")
 
-        datalist = Item.objects.all().values('name').distinct().order_by('name')
+        datalist = Item.objects.all().values("name").distinct().order_by("name")
         response = {
             "items": ItemSerializer(items, many=True).data,
             "purchases": ItemSerializer(purchases, many=True).data,
@@ -105,13 +103,12 @@ class ItemListAPIView(APIView):
 
 
 class ItemDetailAPIView(APIView):
-
     def put(self, request, item_id):
         try:
             item = Item.objects.get(pk=item_id)
         except Item.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        if (request.data['is_purchased'] == True):
+        if request.data["is_purchased"] == True:
             item.is_purchased = True
             item.purchased_at = timezone.now()
             item.purchased_by = request.user if request.user.is_authenticated else None
@@ -120,9 +117,9 @@ class ItemDetailAPIView(APIView):
             item.purchased_at = None
             item.purchased_by = None
         if "store" in request.data:
-            item.store = request.data['store']
+            item.store = request.data["store"]
         if "name" in request.data:
-            item.name = request.data['name']
+            item.name = request.data["name"]
         item.save()
         return Response(ItemSerializer(item).data)
 
@@ -133,4 +130,3 @@ class ItemDetailAPIView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-

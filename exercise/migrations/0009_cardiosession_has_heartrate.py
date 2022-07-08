@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exercise', '0008_alter_cardiosession_average_heartrate_and_more'),
+        ("exercise", "0008_alter_cardiosession_average_heartrate_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cardiosession',
-            name='has_heartrate',
+            model_name="cardiosession",
+            name="has_heartrate",
             field=models.BooleanField(default=False),
         ),
     ]
