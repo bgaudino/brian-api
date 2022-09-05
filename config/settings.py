@@ -168,3 +168,8 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
 }
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = 'AKIATWCI3U27MNJ47P6F'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'brian-api'

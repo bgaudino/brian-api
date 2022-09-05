@@ -3,6 +3,8 @@ djangorestframework
 django-cors-headers
 djangorestframework-simplejwt
 django-nested-admin
+django-storages
+boto3
+pillow
 python-environ
 requests
-

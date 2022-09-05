@@ -20,6 +20,11 @@ urlpatterns = [
     path("shopping/", views.ItemView.as_view(), name="item_view"),
     path("api/items/", views.ItemListAPIView.as_view(), name="item_list_api"),
     path(
+        "api/item/<int:pk>/photo/",
+        views.PhotoUploadView.as_view(),
+        name="photo_upload",
+    ),
+    path(
         "api/item/<int:item_id>/",
         views.ItemDetailAPIView.as_view(),
         name="item_detail_api",
