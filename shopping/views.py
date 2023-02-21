@@ -102,7 +102,10 @@ class ItemListAPIView(APIView):
 
     def post(self, request):
         name = request.data.pop("name")
-        item = Item.objects.get_or_create(name=name)[0]
+        try:
+            item = Item.objects.get(name__iexact=name)
+        except Item.DoesNotExist:
+            item = Item.objects.create(name=name.lower())
         request.data["item"] = item.pk
         instance = ItemInstanceSerializer(data=request.data)
         if instance.is_valid():
