@@ -24,11 +24,8 @@ jobs:
         pip3 install --user -r requirements.txt
         python3 manage.py test
 
-  linter_name:
-    name: runner / black formatter
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: rickstaa/action-black@v1
-        with:
-          black_args: ". --check --exclude /migrations/*"
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable
