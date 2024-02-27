@@ -52,7 +52,9 @@ class ItemInstance(models.Model):
             "name": self.item.name,
             "created_at": self.created_at.strftime("%m/%d/%Y, %H:%M:%S"),
             "is_purchased": self.is_purchased,
-            "purchased_at": self.purchased_at.strftime("%m/%d/%Y, %H:%M:%S")
-            if self.purchased_at
-            else None,
+            "purchased_at": (
+                self.purchased_at.strftime("%m/%d/%Y, %H:%M:%S")
+                if self.purchased_at
+                else None
+            ),
         }
