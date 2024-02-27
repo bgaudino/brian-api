@@ -8,12 +8,12 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('shopping', '0002_initial'),
+        ("shopping", "0002_initial"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Item',
-            new_name='ItemInstance',
+            old_name="Item",
+            new_name="ItemInstance",
         ),
     ]
