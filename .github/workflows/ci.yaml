@@ -9,6 +9,10 @@ env:
   STRAVA_CLIENT_ID: foo
   STRAVA_CLIENT_SECRET: bar
   STRAVA_WEBHOOK_VERIFY_TOKEN: baz
+  AWS_ACCESS_KEY: asdf
+  AWS_SECRET_ACCESS_KEY: asdf
+  AWS_ACCESS_KEY_ID: asdf
+
 
 jobs:
   test_project:
