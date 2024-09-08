@@ -7,6 +7,7 @@ from django.db.models import Sum, Count
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from config.settings import (
     STRAVA_CLIENT_ID,
@@ -24,6 +25,8 @@ from .serializers import (
 
 
 class WorkoutListView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         workouts = Workout.objects.filter(user=request.user).order_by("-start_date")
         data = WorkoutSerializer(workouts, many=True).data
@@ -35,6 +38,8 @@ class WorkoutListView(APIView):
 
 
 class WorkoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         try:
             workout = Workout.objects.get(id=id, user=request.user)
@@ -50,6 +55,8 @@ class WorkoutView(APIView):
 
 
 class ExerciseCreateUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         workout = Workout.objects.get(id=request.data["workout_id"], user=request.user)
         exercise = Exercise.objects.create(
@@ -71,6 +78,8 @@ class ExerciseCreateUpdateView(APIView):
 
 
 class ExerciseDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, id):
         exercise = Exercise.objects.get(id=id, workout__user=request.user)
         exercise.delete()
@@ -78,6 +87,8 @@ class ExerciseDeleteView(APIView):
 
 
 class SetCreateUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         exercise_id = request.data["exercise_id"]
         exercise = Exercise.objects.get(id=exercise_id, workout__user=request.user)
@@ -99,6 +110,8 @@ class SetCreateUpdateView(APIView):
 
 
 class SetDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, id):
         set = Set.objects.get(id=id, exercise__workout__user=request.user)
         set.delete()
@@ -106,6 +119,8 @@ class SetDeleteView(APIView):
 
 
 class StravaAuthView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         code = request.data["code"]
         body = {
@@ -126,7 +141,7 @@ class StravaAuthView(APIView):
                     status=status.HTTP_403_FORBIDDEN,
                 )
             print("Athlete already exists. Updating")
-        except:
+        except StravaAccount.DoesNotExist:
             account = StravaAccount(user=user, strava_id=data["athlete"]["id"])
             print("Creating new athlete")
         account.token_type = data["token_type"]
@@ -150,6 +165,8 @@ class StravaAuthView(APIView):
 
 
 class CardioListView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         offset = int(request.query_params.get("offset", 0)) * 10
         strava_accounts = StravaAccount.objects.filter(user=request.user)
