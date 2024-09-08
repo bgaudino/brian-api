@@ -37,6 +37,5 @@ urlpatterns = [
     path("api/diet/", include("diet.urls")),
     path("api/weight/", include("weight.urls")),
     path("todo/", include("todo.urls")),
-    path("", include("shopping.urls")),
     path("", index, name="index"),
 ]
